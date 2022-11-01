@@ -3,16 +3,31 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useState, useEffect } from "react";
-import { IPokemon } from "../../interfaces/IPokemon";
+import { IAllPokemonsApi, IPokemon } from "../../interfaces/IPokemon";
 import styles from "../../styles/Details.module.css";
 
 interface Props {
 	pokemon: IPokemon;
 }
 
-export async function getServerSideProps({
-	params,
-}: GetServerSidePropsContext) {
+export async function getStaticPaths() {
+	const resp = await fetch(
+		"https://jherr-pokemon.s3.us-west-1.amazonaws.com/index.json"
+	);
+
+	const pokemon: IAllPokemonsApi[] = await resp.json();
+
+	return {
+		paths: pokemon.map((pokemon) => {
+			params: {
+				id: pokemon.id.toString();
+			}
+		}),
+		fallback: false,
+	};
+}
+
+export async function getStaticProps({ params }: GetServerSidePropsContext) {
 	const resp = await fetch(
 		`https://jherr-pokemon.s3.us-west-1.amazonaws.com/pokemon/${
 			params ? params.id : "1"
