@@ -1,3 +1,4 @@
+import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -5,24 +6,54 @@ import React, { useState, useEffect } from "react";
 import { IPokemon } from "../../interfaces/IPokemon";
 import styles from "../../styles/Details.module.css";
 
-export default function Details() {
-	const {
-		query: { id },
-	} = useRouter();
+interface Props {
+	pokemon: IPokemon;
+}
 
-	const [pokemon, setPokemon] = useState<IPokemon>();
-
-	useEffect(() => {
-		async function getPokemon() {
-			const resp = await fetch(
-				`https://jherr-pokemon.s3.us-west-1.amazonaws.com/pokemon/${id}.json`
-			);
-			setPokemon(await resp.json());
+export async function getServerSideProps({
+	params,
+}: GetServerSidePropsContext) {
+	const resp = await fetch(
+		`https://jherr-pokemon.s3.us-west-1.amazonaws.com/pokemon/${
+			params ? params.id : "1"
+		}.json`,
+		{
+			method: "GET",
+			headers: {
+				accept: "application/json",
+			},
 		}
-		if (id) getPokemon();
-	}, [id]);
+	);
 
-	if (!pokemon) return null;
+	if (!resp.ok) {
+		throw new Error(`Error! status: ${resp.status}`);
+	}
+
+	return {
+		props: {
+			pokemon: await resp.json(),
+		},
+	};
+}
+
+export default function Details({ pokemon }: Props) {
+	// const {
+	// 	query: { id },
+	// } = useRouter();
+
+	// const [pokemon, setPokemon] = useState<IPokemon>();
+
+	// useEffect(() => {
+	// 	async function getPokemon() {
+	// 		const resp = await fetch(
+	// 			`https://jherr-pokemon.s3.us-west-1.amazonaws.com/pokemon/${id}.json`
+	// 		);
+	// 		setPokemon(await resp.json());
+	// 	}
+	// 	if (id) getPokemon();
+	// }, [id]);
+
+	// if (!pokemon) return null;
 
 	return (
 		<div>

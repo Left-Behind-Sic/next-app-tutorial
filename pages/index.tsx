@@ -4,19 +4,32 @@ import { useEffect, useState } from "react";
 import { IAllPokemonsApi } from "../interfaces/IPokemon";
 import styles from "../styles/Home.module.css";
 
-export default function Home() {
-	const [pokemon, setPokemon] = useState<IAllPokemonsApi[]>([]);
-
-	useEffect(() => {
-		async function getPokemon() {
-			const resp = await fetch(
-				"https://jherr-pokemon.s3.us-west-1.amazonaws.com/index.json"
-			);
-			setPokemon(await resp.json());
+export async function getServerSideProps() {
+	const resp = await fetch(
+		"https://jherr-pokemon.s3.us-west-1.amazonaws.com/index.json",
+		{
+			method: "GET",
+			headers: {
+				accept: "application/json",
+			},
 		}
-		getPokemon();
-	}, []);
+	);
+	if (!resp.ok) {
+		throw new Error(`Error! status: ${resp.status}`);
+	}
 
+	return {
+		props: {
+			pokemon: await resp.json(),
+		},
+	};
+}
+
+interface Props {
+	pokemon: IAllPokemonsApi[];
+}
+
+export default function Home({ pokemon }: Props) {
 	return (
 		<div className={styles.container}>
 			<Head>
