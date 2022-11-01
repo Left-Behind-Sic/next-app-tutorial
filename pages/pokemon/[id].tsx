@@ -18,11 +18,11 @@ export async function getStaticPaths() {
 	const pokemon: IAllPokemonsApi[] = await resp.json();
 
 	return {
-		paths: pokemon.map((pokemon) => {
+		paths: pokemon.map((pokemon) => ({
 			params: {
-				id: pokemon.id.toString();
-			}
-		}),
+				id: pokemon.id.toString(),
+			},
+		})),
 		fallback: false,
 	};
 }
