@@ -16,18 +16,8 @@ export async function getServerSideProps({
 	const resp = await fetch(
 		`https://jherr-pokemon.s3.us-west-1.amazonaws.com/pokemon/${
 			params ? params.id : "1"
-		}.json`,
-		{
-			method: "GET",
-			headers: {
-				accept: "application/json",
-			},
-		}
+		}.json`
 	);
-
-	if (!resp.ok) {
-		throw new Error(`Error! status: ${resp.status}`);
-	}
 
 	return {
 		props: {
